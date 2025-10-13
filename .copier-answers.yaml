@@ -1,0 +1,12 @@
+# Changes here will be overwritten by Copier
+_commit: 973c39c
+_src_path: https://github.com/python-project-templates/base.git
+add_docs: false
+add_extension: python
+add_wiki: false
+email: dev@1kbgz.com
+github: 1kbgz
+project_description: A library for object observability
+project_name: bigbrother
+python_version_primary: '3.11'
+team: the bigbrother authors

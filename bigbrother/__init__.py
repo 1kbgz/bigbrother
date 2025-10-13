@@ -3,19 +3,19 @@ __version__ = "0.1.3"
 from types import MethodType
 from typing import Any, Callable, Dict, List, Set, Tuple, TypeVar
 
-from .generic import _replacement_setattr, _replacement_setitem
 from .builtins import (
     _createObservedDict,
-    _ObservedDict,
     _createObservedList,
-    _ObservedList,
     _createObservedSet,
+    _ObservedDict,
+    _ObservedList,
     _ObservedSet,
 )
-
+from .generic import _replacement_setattr, _replacement_setitem
 
 try:
     from pydantic import BaseModel
+
     from .libraries.pydantic import _install_watcher_pydantic
 
 except ImportError:

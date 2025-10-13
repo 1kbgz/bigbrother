@@ -1,4 +1,5 @@
 from typing import Any, Callable, Dict, Type
+
 from ..common import _partial
 
 
@@ -55,5 +56,7 @@ class _ObservedDict(Dict):
 
 def _create(watcher: Callable[[_ObservedDict, str, Any], None], recursive: bool, _install_watcher: Callable) -> Type[_ObservedDict]:
     return type(
-        "_ObservedDict", (_ObservedDict,), {"_watcher": watcher, "_recursive": recursive, "_install_watcher": _install_watcher, "_watcher_ready": False}
+        "_ObservedDict",
+        (_ObservedDict,),
+        {"_watcher": watcher, "_recursive": recursive, "_install_watcher": _install_watcher, "_watcher_ready": False},
     )

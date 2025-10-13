@@ -1,7 +1,8 @@
-from pydantic import BaseModel
 from typing import Any, Callable
-from ..common import _partial
 
+from pydantic import BaseModel
+
+from ..common import _partial
 
 # def _install_watcher_pydantic_field(field, watcher: Callable[[BaseModel, str, Any], None], recursive: bool, _install_watcher: Callable):
 #     if field.default_factory and not hasattr(field.default_factory, "is_bigbrother_field_factory"):
@@ -12,7 +13,9 @@ from ..common import _partial
 #     return field
 
 
-def _install_watcher_pydantic(obj: BaseModel, watcher: Callable[[BaseModel, str, Any], None], recursive: bool, _install_watcher: Callable) -> BaseModel:
+def _install_watcher_pydantic(
+    obj: BaseModel, watcher: Callable[[BaseModel, str, Any], None], recursive: bool, _install_watcher: Callable
+) -> BaseModel:
     # Library types
     # Pydantic object
     if BaseModel and isinstance(obj, BaseModel):
