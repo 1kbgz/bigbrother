@@ -1,4 +1,5 @@
 from typing import Any, Callable, Set, Type
+
 from ..common import _partial
 
 
@@ -74,4 +75,6 @@ class _ObservedSet(Set):
 
 
 def _create(watcher: Callable[[_ObservedSet, str, Any], None], recursive: bool, _install_watcher: Callable) -> Type[_ObservedSet]:
-    return type("_ObservedSet", (_ObservedSet,), {"_watcher": watcher, "_recursive": recursive, "_install_watcher": _install_watcher, "_watcher_ready": False})
+    return type(
+        "_ObservedSet", (_ObservedSet,), {"_watcher": watcher, "_recursive": recursive, "_install_watcher": _install_watcher, "_watcher_ready": False}
+    )

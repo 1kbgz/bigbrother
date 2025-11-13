@@ -1,5 +1,6 @@
-from bigbrother import watch
 from pydantic import BaseModel
+
+from bigbrother import watch
 
 
 def create_tester(instance, method_name, expected_ref=None, expected_args=None, expected_kwargs=None):

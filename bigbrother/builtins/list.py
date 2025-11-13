@@ -1,4 +1,5 @@
 from typing import Any, Callable, List, Type
+
 from ..common import _partial
 
 
@@ -35,7 +36,9 @@ class _ObservedList(List):
     def extend(self, __iterable):
         self._notify_watcher("extend", __iterable)
         if self._recursive:
-            __iterable = self.__class__._install_watcher(list(__iterable), watcher=_partial(self.__class__._watcher, ref=self), recursive=self._recursive)
+            __iterable = self.__class__._install_watcher(
+                list(__iterable), watcher=_partial(self.__class__._watcher, ref=self), recursive=self._recursive
+            )
         return super().extend(__iterable)
 
     def insert(self, __key: int, __value: Any):
@@ -69,5 +72,7 @@ class _ObservedList(List):
 
 def _create(watcher: Callable[[_ObservedList, str, Any], None], recursive: bool, _install_watcher: Callable) -> Type[_ObservedList]:
     return type(
-        "_ObservedList", (_ObservedList,), {"_watcher": watcher, "_recursive": recursive, "_install_watcher": _install_watcher, "_watcher_ready": False}
+        "_ObservedList",
+        (_ObservedList,),
+        {"_watcher": watcher, "_recursive": recursive, "_install_watcher": _install_watcher, "_watcher_ready": False},
     )

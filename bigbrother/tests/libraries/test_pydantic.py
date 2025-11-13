@@ -1,5 +1,7 @@
-from bigbrother import watch
 from pydantic import BaseModel, Field
+
+from bigbrother import watch
+
 from ..common import create_tester
 
 
