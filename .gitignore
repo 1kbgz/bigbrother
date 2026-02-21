@@ -141,14 +141,12 @@ js/node_modules
 js/test-results
 js/playwright-report
 js/*.tgz
-bigbrother/extension
 
 # Jupyter
 .ipynb_checkpoints
 .autoversion
 Untitled*.ipynb
-!bigbrother/extension/bigbrother.json
-!bigbrother/extension/install.json
+bigbrother/extension
 bigbrother/nbextension
 bigbrother/labextension
 
@@ -157,3 +155,7 @@ bigbrother/labextension
 
 # Rust
 target
+
+# Hydra
+outputs/
+multirun/
