@@ -1,7 +1,6 @@
 __version__ = "0.1.3"
 
-from types import MethodType
-from typing import Any, Callable, Dict, List, Set, Tuple, TypeVar
+from typing import Callable, Dict, List, Set, Tuple, TypeVar
 
 from .builtins import (
     _createObservedDict,
@@ -11,7 +10,7 @@ from .builtins import (
     _ObservedList,
     _ObservedSet,
 )
-from .generic import _replacement_setattr, _replacement_setitem
+from .generic import _install_watcher_object
 
 try:
     from pydantic import BaseModel
@@ -23,24 +22,12 @@ except ImportError:
 
 
 T = TypeVar("T")
+Watcher = Callable[[T, str, T, Tuple, Dict], None]
 
 
-def _partial(watcher, obj):
-    def _watcher_wrapper(*args, **kwargs):
-        if args:
-            args = args[1:]
-        if kwargs:
-            kwargs.pop("obj", None)
-            kwargs.pop("self", None)
-        return watcher(obj, *args, **kwargs)
-
-    return _watcher_wrapper
-
-
-def _install_watcher(obj: T, watcher: Callable[[T, str, T, Tuple, Dict], None], recursive: bool = False) -> T:
-    # Standard mutable types
+def _install_watcher(obj: T, watcher: Watcher, recursive: bool = False) -> T:
+    # Standard mutable containers: can't mutate their methods, so replace with an observed subclass.
     if isinstance(obj, List) and not isinstance(obj, _ObservedList):
-        # can't mutate list so replace with watcher variant
         return _createObservedList(watcher, recursive=recursive, _install_watcher=_install_watcher)(obj)
 
     if isinstance(obj, Set) and not isinstance(obj, _ObservedSet):
@@ -49,33 +36,20 @@ def _install_watcher(obj: T, watcher: Callable[[T, str, T, Tuple, Dict], None], 
     if isinstance(obj, Dict) and not isinstance(obj, _ObservedDict):
         return _createObservedDict(watcher, recursive=recursive, _install_watcher=_install_watcher)(obj)
 
-    # Library types
-    # Pydantic object
-    if BaseModel and isinstance(obj, BaseModel):
+    # Pydantic models store their fields in __dict__; observe it.
+    if BaseModel is not None and isinstance(obj, BaseModel):
         return _install_watcher_pydantic(obj=obj, watcher=watcher, recursive=recursive, _install_watcher=_install_watcher)
 
-    # Pydantic class
-    # TODO
-
-    # Others
-    try:
-        if hasattr(obj, "__setitem__"):
-            object.__setattr__(obj, "__setitem__", MethodType(_replacement_setitem, obj))
-    except AttributeError:
-        # Ignore
-        pass
-
-    try:
-        if hasattr(obj, "__setattr__"):
-            object.__setattr__(obj, "__setattr__", MethodType(_replacement_setattr, obj))
-    except AttributeError:
-        # Ignore
-        pass
-
-    return obj
+    # Generic objects (dataclasses, plain classes): swap the class for an observing subclass.
+    return _install_watcher_object(obj, watcher, recursive, _install_watcher)
 
 
-def watch(obj: T, watcher: Callable[[T, str, T, Tuple, Dict], None], deepstate: bool = False) -> T:
+def watch(obj: T, watcher: Watcher, deepstate: bool = False) -> T:
+    """Watch ``obj`` for mutation, invoking ``watcher(obj, method, ref, call_args, call_kwargs)``.
+
+    With ``deepstate=True`` the watcher is installed recursively on nested containers and objects, so
+    deep mutations (``obj.child.items.append(...)``) are reported too.
+    """
     return _install_watcher(obj, watcher, recursive=deepstate)
 
 
