@@ -51,7 +51,7 @@ Callbacks fire before the underlying mutation completes.
 
 ## Documentation
 
-- [API reference](docs/src/api.md)
+- [API reference](https://1kbgz.github.io/bigbrother/docs/src/api.html)
 
 ## Development
 
