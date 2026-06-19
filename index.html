@@ -3,7 +3,7 @@
   <head><meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html">
+<link rel="index" title="Index" href="genindex.html"><link rel="search" title="Search" href="search.html"><link rel="next" title="API Reference" href="docs/src/api.html">
 
     <!-- Generated with Sphinx 8.2.3 and Furo 2025.12.19 -->
         <title>bigbrother v0.1.4</title>
@@ -196,7 +196,10 @@
   <input type="hidden" name="area" value="default">
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
-  
+  <ul>
+<li class="toctree-l1"><a class="reference internal" href="docs/src/api.html">API Reference</a></li>
+</ul>
+
 </div>
 </div>
 
@@ -237,98 +240,71 @@
 </div>
 <section class="tex2jax_ignore mathjax_ignore" id="bigbrother">
 <h1>bigbrother<a class="headerlink" href="#bigbrother" title="Link to this heading">¶</a></h1>
-<p>An evil, awful, terrible, no-good library for watching objects for mutation. Do not use this library.</p>
+<p>Mutation callbacks for Python objects.</p>
 <p><a class="reference external" href="https://github.com/1kbgz/bigbrother/actions/workflows/build.yaml"><img alt="Build Status" src="https://github.com/1kbgz/bigbrother/actions/workflows/build.yaml/badge.svg?branch=main&amp;event=push" /></a>
 <a class="reference external" href="https://codecov.io/gh/1kbgz/bigbrother"><img alt="codecov" src="https://codecov.io/gh/1kbgz/bigbrother/branch/main/graph/badge.svg" /></a>
 <a class="reference external" href="https://github.com/1kbgz/bigbrother"><img alt="License" src="https://img.shields.io/github/license/1kbgz/bigbrother" /></a>
 <a class="reference external" href="https://pypi.python.org/pypi/bigbrother"><img alt="PyPI" src="https://img.shields.io/pypi/v/bigbrother.svg" /></a></p>
-<section id="overview">
-<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">¶</a></h2>
-<p><code class="docutils literal notranslate"><span class="pre">bigbrother</span></code> is a mutation observer library. You can use it to watch your objects for changes. When your object changes, <code class="docutils literal notranslate"><span class="pre">bigbrother</span></code> will trigger your choice of callback.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">x</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">:</span> <span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="s2">&quot;c&quot;</span><span class="p">}</span>
-
-<span class="k">def</span><span class="w"> </span><span class="nf">track_changes</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">ref</span><span class="p">,</span> <span class="n">call_args</span><span class="p">,</span> <span class="n">call_kwargs</span><span class="p">):</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;method: </span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2">, args: </span><span class="si">{</span><span class="n">args</span><span class="si">}</span><span class="s2">, kwargs: </span><span class="si">{</span><span class="n">kwargs</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
-<span class="n">x</span> <span class="o">=</span> <span class="n">watch</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">track_changes</span><span class="p">)</span>
-
-<span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;x&quot;</span>
-
-<span class="c1"># prints: method: setitem, args: (1, &#39;x&#39;), kwargs: {}</span>
-</pre></div>
-</div>
-<p><code class="docutils literal notranslate"><span class="pre">bigbrother</span></code> can also embed itself recursively in your object by passing in argument <code class="docutils literal notranslate"><span class="pre">deepstate=True</span></code>.</p>
-</section>
-<section id="callback">
-<h2>Callback<a class="headerlink" href="#callback" title="Link to this heading">¶</a></h2>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">callback</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">ref</span><span class="p">,</span> <span class="n">call_args</span><span class="p">,</span> <span class="n">call_kwargs</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;Callback called when object is mutated</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        obj (Any): The object being mutated via `method`</span>
-<span class="sd">        method (str): The method called on the object (dunders removed)</span>
-<span class="sd">        ref (Any): Reference object. If callback installed recursively, `ref` will be the entrypoint</span>
-<span class="sd">        call_args (Tuple[Any]): Positional arguments that `method` was called with on `obj`</span>
-<span class="sd">        call_kwargs (Dict[Any, Any]): Keyword arguments that `method` was called with on `obj`</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<p><code class="docutils literal notranslate"><span class="pre">bigbrother</span></code> watches mutable Python objects and calls your callback when they
+change. It is useful when another layer needs to mark state dirty, schedule a
+refresh, or react to model changes without replacing every mutation call.</p>
+<section id="install">
+<h2>Install<a class="headerlink" href="#install" title="Link to this heading">¶</a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>bigbrother
 </pre></div>
 </div>
 </section>
-<section id="supported-types">
-<h2>Supported types<a class="headerlink" href="#supported-types" title="Link to this heading">¶</a></h2>
-<section id="builtins">
-<h3>Builtins<a class="headerlink" href="#builtins" title="Link to this heading">¶</a></h3>
-<p>Most builtin types are read-only and cannot have their method structure mutated, so we observe via replacement with thin wrappers.</p>
-<ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">list</span></code> via <code class="docutils literal notranslate"><span class="pre">_ObservedList</span></code></p>
-<ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">append</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">clear</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">extend</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">insert</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">pop</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">remove</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">sort</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">__setattr__</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">__setitem__</span></code></p></li>
-</ul>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">dict</span></code> via <code class="docutils literal notranslate"><span class="pre">_ObservedDict</span></code></p>
-<ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">clear</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">pop</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">popitem</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">update</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">__setattr__</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">__setitem__</span></code></p></li>
-</ul>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">set</span></code> via <code class="docutils literal notranslate"><span class="pre">_ObservedSet</span></code></p>
-<ul>
-<li><p><code class="docutils literal notranslate"><span class="pre">add</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">clear</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">difference_update</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">discard</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">intersection_update</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">pop</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">remove</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">symmetric_difference_update</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">update</span></code></p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">__setattr__</span></code></p></li>
-</ul>
-</li>
-</ul>
+<section id="example">
+<h2>Example<a class="headerlink" href="#example" title="Link to this heading">¶</a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bigbrother</span><span class="w"> </span><span class="kn">import</span> <span class="n">watch</span>
+
+<span class="n">changes</span> <span class="o">=</span> <span class="p">[]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">track_change</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">ref</span><span class="p">,</span> <span class="n">call_args</span><span class="p">,</span> <span class="n">call_kwargs</span><span class="p">):</span>
+    <span class="n">changes</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">method</span><span class="p">,</span> <span class="n">call_args</span><span class="p">,</span> <span class="n">call_kwargs</span><span class="p">))</span>
+
+
+<span class="n">state</span> <span class="o">=</span> <span class="n">watch</span><span class="p">({</span><span class="s2">&quot;items&quot;</span><span class="p">:</span> <span class="p">[]},</span> <span class="n">track_change</span><span class="p">,</span> <span class="n">deepstate</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">state</span><span class="p">[</span><span class="s2">&quot;items&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;alpha&quot;</span><span class="p">)</span>
+
+<span class="k">assert</span> <span class="n">changes</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="p">(</span><span class="s2">&quot;append&quot;</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;alpha&quot;</span><span class="p">,),</span> <span class="p">{})</span>
+</pre></div>
+</div>
+<p>Keep the object returned by <code class="docutils literal notranslate"><span class="pre">watch()</span></code>. Built-in containers are observed by
+returning watched container instances.</p>
 </section>
-<section id="libraries">
-<h3>Libraries<a class="headerlink" href="#libraries" title="Link to this heading">¶</a></h3>
+<section id="supported-objects">
+<h2>Supported Objects<a class="headerlink" href="#supported-objects" title="Link to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">bigbrother</span></code> supports:</p>
 <ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">list</span></code>, <code class="docutils literal notranslate"><span class="pre">dict</span></code>, and <code class="docutils literal notranslate"><span class="pre">set</span></code></p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">pydantic.BaseModel</span></code></p></li>
+<li><p>plain Python objects and dataclasses with a <code class="docutils literal notranslate"><span class="pre">__dict__</span></code></p></li>
 </ul>
+<p>Objects without a <code class="docutils literal notranslate"><span class="pre">__dict__</span></code>, such as slot-only classes, are returned unchanged.
+Callbacks fire before the underlying mutation completes.</p>
+</section>
+<section id="documentation">
+<h2>Documentation<a class="headerlink" href="#documentation" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="docs/src/api.html"><span class="std std-doc">API reference</span></a></p></li>
+</ul>
+</section>
+<section id="development">
+<h2>Development<a class="headerlink" href="#development" title="Link to this heading">¶</a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>develop
+python<span class="w"> </span>-m<span class="w"> </span>pytest<span class="w"> </span>bigbrother/tests<span class="w"> </span>-q
+</pre></div>
+</div>
+</section>
+<section id="license">
+<h2>License<a class="headerlink" href="#license" title="Link to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">bigbrother</span></code> is licensed under Apache-2.0.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>This library was generated using <a class="reference external" href="https://copier.readthedocs.io/en/stable/">copier</a> from the <a class="reference external" href="https://github.com/python-project-templates/base">Base Python Project Template repository</a>.</p>
 </div>
-</section>
 </section>
 </section>
 
@@ -337,7 +313,15 @@
       <footer>
         
         <div class="related-pages">
-          
+          <a class="next-page" href="docs/src/api.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">API Reference</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
           
         </div>
         <div class="bottom-of-page">

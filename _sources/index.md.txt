@@ -13,85 +13,69 @@ docs/src/api.md
 
 # bigbrother
 
-An evil, awful, terrible, no-good library for watching objects for mutation. Do not use this library.
+Mutation callbacks for Python objects.
 
 [![Build Status](https://github.com/1kbgz/bigbrother/actions/workflows/build.yaml/badge.svg?branch=main&event=push)](https://github.com/1kbgz/bigbrother/actions/workflows/build.yaml)
 [![codecov](https://codecov.io/gh/1kbgz/bigbrother/branch/main/graph/badge.svg)](https://codecov.io/gh/1kbgz/bigbrother)
 [![License](https://img.shields.io/github/license/1kbgz/bigbrother)](https://github.com/1kbgz/bigbrother)
 [![PyPI](https://img.shields.io/pypi/v/bigbrother.svg)](https://pypi.python.org/pypi/bigbrother)
 
-## Overview
+`bigbrother` watches mutable Python objects and calls your callback when they
+change. It is useful when another layer needs to mark state dirty, schedule a
+refresh, or react to model changes without replacing every mutation call.
 
-`bigbrother` is a mutation observer library. You can use it to watch your objects for changes. When your object changes, `bigbrother` will trigger your choice of callback.
+## Install
 
-```python
-x = {1: "a", 2: "b", 3: "c"}
-
-def track_changes(obj, method, ref, call_args, call_kwargs):
-    print(f"method: {method}, args: {args}, kwargs: {kwargs}")
-
-x = watch(x, track_changes)
-
-x[1] = "x"
-
-# prints: method: setitem, args: (1, 'x'), kwargs: {}
+```bash
+pip install bigbrother
 ```
 
-`bigbrother` can also embed itself recursively in your object by passing in argument `deepstate=True`.
-
-## Callback
+## Example
 
 ```python
-def callback(obj, method, ref, call_args, call_kwargs):
-    '''Callback called when object is mutated
+from bigbrother import watch
 
-    Args:
-        obj (Any): The object being mutated via `method`
-        method (str): The method called on the object (dunders removed)
-        ref (Any): Reference object. If callback installed recursively, `ref` will be the entrypoint
-        call_args (Tuple[Any]): Positional arguments that `method` was called with on `obj`
-        call_kwargs (Dict[Any, Any]): Keyword arguments that `method` was called with on `obj`
-    '''
+changes = []
+
+
+def track_change(obj, method, ref, call_args, call_kwargs):
+    changes.append((method, call_args, call_kwargs))
+
+
+state = watch({"items": []}, track_change, deepstate=True)
+state["items"].append("alpha")
+
+assert changes[-1] == ("append", ("alpha",), {})
 ```
 
-## Supported types
+Keep the object returned by `watch()`. Built-in containers are observed by
+returning watched container instances.
 
-### Builtins
+## Supported Objects
 
-Most builtin types are read-only and cannot have their method structure mutated, so we observe via replacement with thin wrappers.
+`bigbrother` supports:
 
-- `list` via `_ObservedList`
-  - `append`
-  - `clear`
-  - `extend`
-  - `insert`
-  - `pop`
-  - `remove`
-  - `sort`
-  - `__setattr__`
-  - `__setitem__`
-- `dict` via `_ObservedDict`
-  - `clear`
-  - `pop`
-  - `popitem`
-  - `update`
-  - `__setattr__`
-  - `__setitem__`
-- `set` via `_ObservedSet`
-  - `add`
-  - `clear`
-  - `difference_update`
-  - `discard`
-  - `intersection_update`
-  - `pop`
-  - `remove`
-  - `symmetric_difference_update`
-  - `update`
-  - `__setattr__`
-
-### Libraries
-
+- `list`, `dict`, and `set`
 - `pydantic.BaseModel`
+- plain Python objects and dataclasses with a `__dict__`
+
+Objects without a `__dict__`, such as slot-only classes, are returned unchanged.
+Callbacks fire before the underlying mutation completes.
+
+## Documentation
+
+- [API reference](docs/src/api.md)
+
+## Development
+
+```bash
+make develop
+python -m pytest bigbrother/tests -q
+```
+
+## License
+
+`bigbrother` is licensed under Apache-2.0.
 
 > [!NOTE]
 > This library was generated using [copier](https://copier.readthedocs.io/en/stable/) from the [Base Python Project Template repository](https://github.com/python-project-templates/base).
