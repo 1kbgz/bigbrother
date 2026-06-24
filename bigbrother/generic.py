@@ -4,8 +4,8 @@
 ``__setitem__`` — so the ``__dict__``-swap trick used for pydantic (whose ``__setattr__`` does a
 Python-level ``dict[name] = value``) does not catch attribute assignment on ordinary objects.
 Instead we swap the instance's class for a thin subclass whose ``__setattr__`` notifies the watcher.
-Objects without a ``__dict__`` (``__slots__``, e.g. ``msgspec.Struct``) can't be observed this way
-and are returned unchanged.
+Objects without a ``__dict__`` (``__slots__``, e.g. ``msgspec.Struct``), or objects that reject
+``__class__`` assignment, can't be observed this way and are returned unchanged.
 """
 
 from typing import Callable
@@ -29,7 +29,10 @@ def _install_watcher_object(obj, watcher: Callable, recursive: bool, _install_wa
         return obj  # no __dict__ (e.g. __slots__): cannot observe
     if getattr(type(obj), "_bigbrother_observed", False):
         return obj  # already observed
-    object.__setattr__(obj, "__class__", _observed_class_for(type(obj), watcher))
+    try:
+        object.__setattr__(obj, "__class__", _observed_class_for(type(obj), watcher))
+    except TypeError:
+        return obj
     if recursive:
         for key, value in list(obj_dict.items()):
             # write through the base setattr so installing doesn't itself notify
