@@ -1,5 +1,6 @@
 __version__ = "0.1.4"
 
+from enum import Enum
 from typing import Callable, Dict, List, Set, Tuple, TypeVar
 
 from .builtins import (
@@ -35,6 +36,9 @@ def _install_watcher(obj: T, watcher: Watcher, recursive: bool = False) -> T:
 
     if isinstance(obj, Dict) and not isinstance(obj, _ObservedDict):
         return _createObservedDict(watcher, recursive=recursive, _install_watcher=_install_watcher)(obj)
+
+    if isinstance(obj, Enum):
+        return obj
 
     # Pydantic models store their fields in __dict__; observe it.
     if BaseModel is not None and isinstance(obj, BaseModel):
