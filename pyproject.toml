@@ -12,15 +12,9 @@ authors = [
 description = "A library for object observability"
 readme = "README.md"
 license = { text = "Apache-2.0" }
-<<<<<<< before updating
 version = "0.1.5"
-requires-python = ">=3.10"
-keywords = ["observer", "observer-pattern"]
-=======
-version = "0.1.0"
 requires-python = ">=3.11"
-keywords = []
->>>>>>> after updating
+keywords = ["observer", "observer-pattern"]
 
 classifiers = [
     "Development Status :: 3 - Alpha",
