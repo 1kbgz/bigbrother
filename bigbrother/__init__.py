@@ -1,7 +1,8 @@
 __version__ = "0.1.5"
 
+from collections.abc import Callable
 from enum import Enum
-from typing import Callable, Dict, List, Set, Tuple, TypeVar
+from typing import TypeVar
 
 from .builtins import (
     _createObservedDict,
@@ -23,18 +24,18 @@ except ImportError:
 
 
 T = TypeVar("T")
-Watcher = Callable[[T, str, T, Tuple, Dict], None]
+Watcher = Callable[[T, str, T, tuple, dict], None]
 
 
 def _install_watcher(obj: T, watcher: Watcher, recursive: bool = False) -> T:
     # Standard mutable containers: can't mutate their methods, so replace with an observed subclass.
-    if isinstance(obj, List) and not isinstance(obj, _ObservedList):
+    if isinstance(obj, list) and not isinstance(obj, _ObservedList):
         return _createObservedList(watcher, recursive=recursive, _install_watcher=_install_watcher)(obj)
 
-    if isinstance(obj, Set) and not isinstance(obj, _ObservedSet):
+    if isinstance(obj, set) and not isinstance(obj, _ObservedSet):
         return _createObservedSet(watcher, recursive=recursive, _install_watcher=_install_watcher)(obj)
 
-    if isinstance(obj, Dict) and not isinstance(obj, _ObservedDict):
+    if isinstance(obj, dict) and not isinstance(obj, _ObservedDict):
         return _createObservedDict(watcher, recursive=recursive, _install_watcher=_install_watcher)(obj)
 
     if isinstance(obj, Enum):
@@ -57,4 +58,4 @@ def watch(obj: T, watcher: Watcher, deepstate: bool = False) -> T:
     return _install_watcher(obj, watcher, recursive=deepstate)
 
 
-__all__ = ["watch", "__version__"]
+__all__ = ["__version__", "watch"]
