@@ -1,15 +1,16 @@
-from typing import Any, Callable, Dict, Type
+from collections.abc import Callable
+from typing import Any
 
 from ..common import _partial
 
 
-class _ObservedDict(Dict):
+class _ObservedDict(dict):
     _watcher: Callable[["_ObservedDict", str, Any], None]
     _recursive: bool
     _install_watcher: Callable
     _watcher_ready: bool
 
-    def __init__(self, dict: Dict):
+    def __init__(self, dict: dict):
         super().__init__(dict)
         object.__setattr__(self, "_watcher_ready", False)
         if self.__class__._recursive:
@@ -35,7 +36,7 @@ class _ObservedDict(Dict):
         self._notify_watcher("popitem", *args, **kwargs)
         return super().popitem(*args, **kwargs)
 
-    def update(self, __m, **kwargs):
+    def update(self, __m, /, **kwargs):
         other = dict(__m, **kwargs)
         if self.__class__._recursive:
             other = self.__class__._install_watcher(other, watcher=_partial(self.__class__._watcher, ref=self), recursive=self._recursive)
@@ -46,7 +47,7 @@ class _ObservedDict(Dict):
         self._notify_watcher("setattr", *args, **kwargs)
         return super().__setattr__(*args, **kwargs)
 
-    def __setitem__(self, __key, __value):
+    def __setitem__(self, __key, __value, /):
         if self._recursive:
             __key = self.__class__._install_watcher(__key, watcher=_partial(self.__class__._watcher, ref=self), recursive=self._recursive)
             __value = self.__class__._install_watcher(__value, watcher=_partial(self.__class__._watcher, ref=self), recursive=self._recursive)
@@ -54,7 +55,7 @@ class _ObservedDict(Dict):
         return super().__setitem__(__key, __value)
 
 
-def _create(watcher: Callable[[_ObservedDict, str, Any], None], recursive: bool, _install_watcher: Callable) -> Type[_ObservedDict]:
+def _create(watcher: Callable[[_ObservedDict, str, Any], None], recursive: bool, _install_watcher: Callable) -> type[_ObservedDict]:
     return type(
         "_ObservedDict",
         (_ObservedDict,),

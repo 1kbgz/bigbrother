@@ -8,7 +8,7 @@ Objects without a ``__dict__`` (``__slots__``, e.g. ``msgspec.Struct``), or obje
 ``__class__`` assignment, can't be observed this way and are returned unchanged.
 """
 
-from typing import Callable
+from collections.abc import Callable
 
 from .common import _partial
 

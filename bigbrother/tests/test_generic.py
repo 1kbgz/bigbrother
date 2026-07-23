@@ -11,7 +11,7 @@ def test_objects_that_reject_class_assignment_are_returned_unchanged():
     for obj in (SimpleNamespace(x=1), Exception("x"), sample_function):
         called = []
 
-        watched = watch(obj, lambda *args: called.append(args), deepstate=True)
+        watched = watch(obj, lambda *args, called=called: called.append(args), deepstate=True)
 
         assert watched is obj
         assert called == []

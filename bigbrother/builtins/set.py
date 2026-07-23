@@ -1,15 +1,16 @@
-from typing import Any, Callable, Set, Type
+from collections.abc import Callable
+from typing import Any
 
 from ..common import _partial
 
 
-class _ObservedSet(Set):
+class _ObservedSet(set):
     _watcher: Callable[["_ObservedSet", str, Any], None]
     _recursive: bool
     _install_watcher: Callable
     _watcher_ready: bool
 
-    def __init__(self, set: Set):
+    def __init__(self, set: set):
         super().__init__(set)
         object.__setattr__(self, "_watcher_ready", False)
         if self._recursive:
@@ -25,7 +26,7 @@ class _ObservedSet(Set):
         if self._watcher_ready:
             self.__class__._watcher(self, method, self, args, kwargs)
 
-    def add(self, __element: Any):
+    def add(self, __element: Any, /):
         self._notify_watcher("add", __element)
         if self._recursive:
             __element = self.__class__._install_watcher(__element, watcher=_partial(self.__class__._watcher, ref=self), recursive=self._recursive)
@@ -74,7 +75,7 @@ class _ObservedSet(Set):
         return super().__setattr__(*args, **kwargs)
 
 
-def _create(watcher: Callable[[_ObservedSet, str, Any], None], recursive: bool, _install_watcher: Callable) -> Type[_ObservedSet]:
+def _create(watcher: Callable[[_ObservedSet, str, Any], None], recursive: bool, _install_watcher: Callable) -> type[_ObservedSet]:
     return type(
         "_ObservedSet", (_ObservedSet,), {"_watcher": watcher, "_recursive": recursive, "_install_watcher": _install_watcher, "_watcher_ready": False}
     )
