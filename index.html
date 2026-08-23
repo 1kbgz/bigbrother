@@ -265,10 +265,10 @@ refresh, or react to model changes without replacing every mutation call.</p>
     <span class="n">changes</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">method</span><span class="p">,</span> <span class="n">call_args</span><span class="p">,</span> <span class="n">call_kwargs</span><span class="p">))</span>
 
 
-<span class="n">state</span> <span class="o">=</span> <span class="n">watch</span><span class="p">({</span><span class="s2">&quot;items&quot;</span><span class="p">:</span> <span class="p">[]},</span> <span class="n">track_change</span><span class="p">,</span> <span class="n">deepstate</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">state</span><span class="p">[</span><span class="s2">&quot;items&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;alpha&quot;</span><span class="p">)</span>
+<span class="n">state</span> <span class="o">=</span> <span class="n">watch</span><span class="p">({</span><span class="s2">"items"</span><span class="p">:</span> <span class="p">[]},</span> <span class="n">track_change</span><span class="p">,</span> <span class="n">deepstate</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">state</span><span class="p">[</span><span class="s2">"items"</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"alpha"</span><span class="p">)</span>
 
-<span class="k">assert</span> <span class="n">changes</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="p">(</span><span class="s2">&quot;append&quot;</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;alpha&quot;</span><span class="p">,),</span> <span class="p">{})</span>
+<span class="k">assert</span> <span class="n">changes</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="p">(</span><span class="s2">"append"</span><span class="p">,</span> <span class="p">(</span><span class="s2">"alpha"</span><span class="p">,),</span> <span class="p">{})</span>
 </pre></div>
 </div>
 <p>Keep the object returned by <code class="docutils literal notranslate"><span class="pre">watch()</span></code>. Built-in containers are observed by
