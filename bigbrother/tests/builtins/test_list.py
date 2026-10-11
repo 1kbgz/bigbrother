@@ -72,3 +72,20 @@ class TestList:
         assert called[0]
         assert len(called) == 1
         assert instance == [1, 4, 3]
+
+    def test_list_slice_assignment(self, a_list):
+        instance, called = create_tester(instance=a_list, method_name="setitem", expected_args=(slice(1, 3), [4, 5]), expected_kwargs={})
+        instance[1:3] = [4, 5]
+        assert called == [True]
+        assert instance == [1, 4, 5]
+
+    def test_list_insert_index_protocol(self, a_list):
+        class Index:
+            def __index__(self):
+                return 1
+
+        index = Index()
+        instance, called = create_tester(instance=a_list, method_name="insert", expected_args=(index, 4), expected_kwargs={})
+        instance.insert(index, 4)
+        assert called == [True]
+        assert instance == [1, 4, 2, 3]

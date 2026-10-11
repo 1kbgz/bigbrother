@@ -1,11 +1,11 @@
 from collections.abc import Callable
-from typing import Any
+from typing import Any, SupportsIndex
 
-from ..common import _partial
+from ..common import Watcher, _partial
 
 
 class _ObservedList(list):
-    _watcher: Callable[["_ObservedList", str, Any], None]
+    _watcher: Watcher
     _recursive: bool
     _install_watcher: Callable
     _watcher_ready: bool
@@ -42,7 +42,7 @@ class _ObservedList(list):
             )
         return super().extend(__iterable)
 
-    def insert(self, __key: int, __value: Any, /):
+    def insert(self, __key: SupportsIndex, __value: Any, /):
         self._notify_watcher("insert", __key, __value)
         if self._recursive:
             __value = self.__class__._install_watcher(__value, watcher=_partial(self.__class__._watcher, ref=self), recursive=self._recursive)
@@ -64,14 +64,14 @@ class _ObservedList(list):
         self._notify_watcher("setattr", *args, **kwargs)
         return super().__setattr__(*args, **kwargs)
 
-    def __setitem__(self, __key: int, __value: Any, /):
+    def __setitem__(self, __key: SupportsIndex | slice, __value: Any, /):
         self._notify_watcher("setitem", __key, __value)
         if self._recursive:
             __value = self.__class__._install_watcher(__value, watcher=_partial(self.__class__._watcher, ref=self), recursive=self._recursive)
         return super().__setitem__(__key, __value)
 
 
-def _create(watcher: Callable[[_ObservedList, str, Any], None], recursive: bool, _install_watcher: Callable) -> type[_ObservedList]:
+def _create(watcher: Watcher, recursive: bool, _install_watcher: Callable) -> type[_ObservedList]:
     return type(
         "_ObservedList",
         (_ObservedList,),

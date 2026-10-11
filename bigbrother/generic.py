@@ -9,12 +9,13 @@ Objects without a ``__dict__`` (``__slots__``, e.g. ``msgspec.Struct``), or obje
 """
 
 from collections.abc import Callable
+from typing import cast
 
 from .common import _partial
 
 
 def _observed_class_for(cls: type, watcher: Callable) -> type:
-    base_setattr = cls.__setattr__
+    base_setattr = cast(Callable[[object, str, object], None], cls.__setattr__)
 
     def _setattr(self, name, value):
         watcher(self, "setattr", self, (name, value), {})

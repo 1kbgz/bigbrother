@@ -43,3 +43,15 @@ class TestDict:
         assert called[0]
         assert len(called) == 1
         assert instance == {1: "x", 2: "b", 3: "c"}
+
+    def test_dict_update_keywords(self):
+        instance, called = create_tester(instance={}, method_name="update", expected_args=({"a": 1},), expected_kwargs={})
+        instance.update(a=1)
+        assert called == [True]
+        assert instance == {"a": 1}
+
+    def test_dict_update_empty(self):
+        instance, called = create_tester(instance={}, method_name="update", expected_args=({},), expected_kwargs={})
+        instance.update()
+        assert called == [True]
+        assert instance == {}

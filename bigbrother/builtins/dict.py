@@ -1,11 +1,10 @@
 from collections.abc import Callable
-from typing import Any
 
-from ..common import _partial
+from ..common import Watcher, _partial
 
 
 class _ObservedDict(dict):
-    _watcher: Callable[["_ObservedDict", str, Any], None]
+    _watcher: Watcher
     _recursive: bool
     _install_watcher: Callable
     _watcher_ready: bool
@@ -36,7 +35,7 @@ class _ObservedDict(dict):
         self._notify_watcher("popitem", *args, **kwargs)
         return super().popitem(*args, **kwargs)
 
-    def update(self, __m, /, **kwargs):
+    def update(self, __m=(), /, **kwargs):
         other = dict(__m, **kwargs)
         if self.__class__._recursive:
             other = self.__class__._install_watcher(other, watcher=_partial(self.__class__._watcher, ref=self), recursive=self._recursive)
@@ -55,7 +54,7 @@ class _ObservedDict(dict):
         return super().__setitem__(__key, __value)
 
 
-def _create(watcher: Callable[[_ObservedDict, str, Any], None], recursive: bool, _install_watcher: Callable) -> type[_ObservedDict]:
+def _create(watcher: Watcher, recursive: bool, _install_watcher: Callable) -> type[_ObservedDict]:
     return type(
         "_ObservedDict",
         (_ObservedDict,),
