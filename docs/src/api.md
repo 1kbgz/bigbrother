@@ -28,8 +28,7 @@ without a `__dict__` are returned unchanged.
 ## Callback
 
 ```python
-def watcher(obj, method, ref, call_args, call_kwargs):
-    ...
+def watcher(obj, method, ref, call_args, call_kwargs): ...
 ```
 
 | Name          | Type    | Description                                                                                                                |

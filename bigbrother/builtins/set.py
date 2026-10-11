@@ -1,11 +1,11 @@
 from collections.abc import Callable
 from typing import Any
 
-from ..common import _partial
+from ..common import Watcher, _partial
 
 
 class _ObservedSet(set):
-    _watcher: Callable[["_ObservedSet", str, Any], None]
+    _watcher: Watcher
     _recursive: bool
     _install_watcher: Callable
     _watcher_ready: bool
@@ -75,7 +75,7 @@ class _ObservedSet(set):
         return super().__setattr__(*args, **kwargs)
 
 
-def _create(watcher: Callable[[_ObservedSet, str, Any], None], recursive: bool, _install_watcher: Callable) -> type[_ObservedSet]:
+def _create(watcher: Watcher, recursive: bool, _install_watcher: Callable) -> type[_ObservedSet]:
     return type(
         "_ObservedSet", (_ObservedSet,), {"_watcher": watcher, "_recursive": recursive, "_install_watcher": _install_watcher, "_watcher_ready": False}
     )

@@ -1,8 +1,7 @@
 __version__ = "0.1.5"
 
-from collections.abc import Callable
 from enum import Enum
-from typing import TypeVar
+from typing import TypeVar, cast
 
 from .builtins import (
     _createObservedDict,
@@ -12,6 +11,7 @@ from .builtins import (
     _ObservedList,
     _ObservedSet,
 )
+from .common import Watcher
 from .generic import _install_watcher_object
 
 try:
@@ -24,26 +24,25 @@ except ImportError:
 
 
 T = TypeVar("T")
-Watcher = Callable[[T, str, T, tuple, dict], None]
 
 
 def _install_watcher(obj: T, watcher: Watcher, recursive: bool = False) -> T:
     # Standard mutable containers: can't mutate their methods, so replace with an observed subclass.
     if isinstance(obj, list) and not isinstance(obj, _ObservedList):
-        return _createObservedList(watcher, recursive=recursive, _install_watcher=_install_watcher)(obj)
+        return cast(T, _createObservedList(watcher, recursive=recursive, _install_watcher=_install_watcher)(obj))
 
     if isinstance(obj, set) and not isinstance(obj, _ObservedSet):
-        return _createObservedSet(watcher, recursive=recursive, _install_watcher=_install_watcher)(obj)
+        return cast(T, _createObservedSet(watcher, recursive=recursive, _install_watcher=_install_watcher)(obj))
 
     if isinstance(obj, dict) and not isinstance(obj, _ObservedDict):
-        return _createObservedDict(watcher, recursive=recursive, _install_watcher=_install_watcher)(obj)
+        return cast(T, _createObservedDict(watcher, recursive=recursive, _install_watcher=_install_watcher)(obj))
 
     if isinstance(obj, Enum):
         return obj
 
     # Pydantic models store their fields in __dict__; observe it.
     if BaseModel is not None and isinstance(obj, BaseModel):
-        return _install_watcher_pydantic(obj=obj, watcher=watcher, recursive=recursive, _install_watcher=_install_watcher)
+        return cast(T, _install_watcher_pydantic(obj=obj, watcher=watcher, recursive=recursive, _install_watcher=_install_watcher))
 
     # Generic objects (dataclasses, plain classes): swap the class for an observing subclass.
     return _install_watcher_object(obj, watcher, recursive, _install_watcher)
